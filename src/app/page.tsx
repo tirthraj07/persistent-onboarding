@@ -1,8 +1,16 @@
-import Image from "next/image";
+import { query } from "@/lib/Database/databaseConnect";
 
-export default function Home() {
+type Prop = {
+  rows: any[],
+  rowCount?: number | null
+};
+
+export default async function Home() {
+  const result = await query('SELECT * FROM employees;');
+
   return (
     <>
+      <pre>{JSON.stringify(result.rows, null, 2)}</pre>
     </>
   );
 }
