@@ -1,16 +1,22 @@
 import { query } from "@/lib/Database/databaseConnect";
 
-type Prop = {
+type SQLResult = {
   rows: any[],
   rowCount?: number | null
 };
 
 export default async function Home() {
-  const result = await query('SELECT * FROM employees;');
+  const queryStatement = `SELECT * FROM employees;`
+  const result = await query(queryStatement);
+  const data: SQLResult = {
+    rows : result.rows,
+    rowCount : result.rowCount
+  }
 
   return (
     <>
-      <pre>{JSON.stringify(result.rows, null, 2)}</pre>
+      <p>Query: {queryStatement}</p>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </>
   );
 }
