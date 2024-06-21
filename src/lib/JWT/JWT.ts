@@ -22,7 +22,7 @@ export class JsonWebToken{
     }
 
     createToken(payload : Payload): string{
-        return jwt.sign(payload, SECRET_KEY, { expiresIn: '7d' });
+        return jwt.sign(payload, SECRET_KEY, { expiresIn: '10d' });
     }
 
     validateToken(token: string){
