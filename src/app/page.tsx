@@ -5,6 +5,8 @@ type SQLResult = {
   rowCount?: number | null
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const queryStatement = `SELECT * FROM employees;`
   const result = await query(queryStatement);
