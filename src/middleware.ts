@@ -15,9 +15,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse>{
     const protected_api_routes = ['/api/cards/mycard']
 
     if(protected_api_routes.includes(request.nextUrl.pathname)){
-        const headerList = headers();
-        const authHeader = headerList.get('Authorization');
-        const token = authHeader && authHeader.split(' ')[1];
+        const token = request.cookies.get('token')?.value;
 
         if(!token){
             const response = NextResponse.json({error: "Unauthorized"},{status:401});
@@ -50,12 +48,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse>{
         return NextResponse.next();
     }
 
-    // Retrieve headers from the request
-    const headerList = headers();
-
-    // Extract Authorization header and token
-    const authHeader = headerList.get('Authorization');
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = request.cookies.get('token')?.value;
 
     // Redirect to login page if no token is present
     if(!token){

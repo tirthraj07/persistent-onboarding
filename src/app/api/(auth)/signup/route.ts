@@ -61,7 +61,12 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
 
         const response = NextResponse.json({ status:"success" },{ status:201 });
 
-        response.headers.set('Authorization',`Bearer ${jwtToken}`);
+        response.cookies.set('token', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
+            maxAge: 60 * 60 * 24 * 10, 
+            path: '/',
+        });
 
         return response;
     }

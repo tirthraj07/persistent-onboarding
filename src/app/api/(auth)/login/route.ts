@@ -86,10 +86,13 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
     // Create the response and set the authorization header
     const response = NextResponse.json({status:"success"}, {status:200})
 
-    const bearerToken = `Bearer ${jwtToken}`;
+    response.cookies.set('token', jwtToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 60 * 60 * 24 * 10, 
+        path: '/',
+    });
     
-    response.headers.set('Authorization', bearerToken);
-
     return response;
 
 }
