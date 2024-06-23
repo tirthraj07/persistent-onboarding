@@ -57,7 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
             full_name: employee.full_name
         };
 
-        const jwtToken = new JsonWebToken().createToken(jwtPayload);
+        const jwtToken = await  new JsonWebToken().createToken(jwtPayload);
 
         const response = NextResponse.json({ status:"success" },{ status:201 });
 

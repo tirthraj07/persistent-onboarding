@@ -11,11 +11,42 @@ import { JsonWebToken } from "./lib/JWT/JWT";
  */
 export async function middleware(request: NextRequest): Promise<NextResponse>{
 
+    // API routes that need authentication
+    const protected_api_routes = ['/api/cards/mycard']
+
+    if(protected_api_routes.includes(request.nextUrl.pathname)){
+        const headerList = headers();
+        const authHeader = headerList.get('Authorization');
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if(!token){
+            const response = NextResponse.json({error: "Unauthorized"},{status:401});
+            return response;
+        }
+
+        const verifiedToken = await new JsonWebToken().validateToken(token);
+        if(!verifiedToken.success || !verifiedToken.decodedToken){
+            console.error(verifiedToken.error);
+            console.error(verifiedToken.reason);
+            const response = NextResponse.json({error: "Unauthorized"},{status:401});
+            return response;
+        }
+        const decodedToken = verifiedToken.decodedToken;
+        request.headers.set('x-decoded-token', JSON.stringify(decodedToken))
+        const requestHeaders = new Headers(request.headers)
+        const response = NextResponse.next({
+            request: {
+              headers: requestHeaders,
+            },
+          });
+        return response;
+    }
+
     // Paths that require authentication
     const protected_paths = ['/mycard', '/edit-card']
 
     // Allow requests to pass through if path is not protected
-    if (!protected_paths.includes(request.nextUrl.pathname) ){
+    if (!protected_paths.includes(request.nextUrl.pathname)){
         return NextResponse.next();
     }
 
@@ -35,7 +66,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse>{
 
     // Validate the JWT token
     const jsonwebtoken = new JsonWebToken();
-    const verifyToken = jsonwebtoken.validateToken(token);
+    const verifyToken = await jsonwebtoken.validateToken(token);
 
     // Redirect to login page if token validation fails
     if(!verifyToken.success){

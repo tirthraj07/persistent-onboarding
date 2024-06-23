@@ -81,7 +81,7 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
         full_name
     }
 
-    const jwtToken = new JsonWebToken().createToken(jwtPayload); 
+    const jwtToken = await  new JsonWebToken().createToken(jwtPayload); 
 
     // Create the response and set the authorization header
     const response = NextResponse.json({status:"success"}, {status:200})
