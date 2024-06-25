@@ -1,24 +1,13 @@
-import { query } from "@/lib/Database/databaseConnect";
+"use client"
+import DesktopNavbar from "@/components/Navbar/desktopNavbar";
+import MobileNavbar from "@/components/Navbar/mobileNavbar";
+import { useMediaQuery } from "@/hooks/use-media-query"; 
 
-type SQLResult = {
-  rows: any[],
-  rowCount?: number | null
-};
+export default function Home() {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
-export const dynamic = "force-dynamic";
-
-export default async function Home() {
-  const queryStatement = `SELECT * FROM employees;`
-  const result = await query(queryStatement);
-  const data: SQLResult = {
-    rows : result.rows,
-    rowCount : result.rowCount
-  }
-
-  return (
-    <>
-      <p>Query: {queryStatement}</p>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </>
+  return (<>
+      {isDesktop? <DesktopNavbar/> : <MobileNavbar/>}
+      </>
   );
 }
