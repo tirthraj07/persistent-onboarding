@@ -20,12 +20,12 @@ export default function DesktopNavbar(){
 
         checkAuthentication();
 
-        console.log(isAuthenticated);
+        // console.log(isAuthenticated);
     },[])
 
     return(
         <>
-            <header className="fixed z-10 top-0 left-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6" style={{backgroundColor:"#322E34"}}>
+            <header className="absolute z-10 top-0 left-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6" style={{backgroundColor:"#322E34"}}>
                 <nav className="flex-1 overflow-auto py-6">
                     <div className="grid gap-4 px-6 grid-rows-1 grid-flow-col">
                         <Link

@@ -5,6 +5,7 @@ import MobileNavbar from "@/components/Navbar/mobileNavbar";
 import { useMediaQuery } from "@/hooks/use-media-query"; 
 import "@/app/globals.css"
 import MobileCards from "@/components/Carousel/mobileCards";
+import Navbar from "@/components/Navbar/navbar";
 
 export default function Home() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -13,7 +14,7 @@ export default function Home() {
     <>
 
       <div className={`relative w-full overflow-hidden ${isDesktop? 'h-screen' : 'h-auto'}`}>
-        {isDesktop? <DesktopNavbar/> : <MobileNavbar/>}
+        <Navbar />
         <video 
           className={`w-full object-cover ${isDesktop ? 'absolute top-0 left-0 h-full' : '' }`}
           src="/videos/hero_section.mp4"

@@ -38,7 +38,7 @@ export default function MobileNavbar(){
 
         checkAuthentication();
 
-        console.log(isAuthenticated);
+        // console.log(isAuthenticated);
     },[])
 
     function handleLogin(){
