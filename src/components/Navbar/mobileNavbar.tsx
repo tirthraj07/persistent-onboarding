@@ -2,6 +2,7 @@ import Link from "next/link"
 import favicon from "../../../public/favicon.png"
 import Image from "next/image"
 import { useEffect, useState } from "react";
+import { useRouter, usePathname } from 'next/navigation'
 
 
 import {
@@ -20,6 +21,8 @@ import { MenuIcon } from "lucide-react"
 
 export default function MobileNavbar(){
     const [isAuthenticated, setAuthenticatedState] = useState<boolean>(false);
+    const router = useRouter()
+    const pathname = usePathname()
 
     useEffect(()=>{
         const checkAuthentication = async () =>{
@@ -38,6 +41,18 @@ export default function MobileNavbar(){
         console.log(isAuthenticated);
     },[])
 
+    function handleLogin(){
+        router.push('/login')
+    }
+
+    function handleLogout(){
+        router.push('/logout')
+    }
+
+    const routes = [
+        {href:"/", name:"Home"},
+        {href:"/#About", name: "About"}
+    ]
 
     return(
         <>
@@ -61,11 +76,37 @@ export default function MobileNavbar(){
                                     </DrawerTrigger>
                                     <DrawerContent>
                                         <DrawerHeader>
-                                        <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                                        <DrawerDescription>This action cannot be undone.</DrawerDescription>
+                                        <DrawerTitle>Navigation</DrawerTitle>
                                         </DrawerHeader>
+                                        <div className="w-full h-full overflow-auto flex flex-col justify-start items-start p-5 gap-5">
+                                            {routes.map((route,index)=>(
+                                                <div key={index} className="flex justify-center align-middle">
+                                                    <Link
+                                                        href={route.href}
+                                                        className="flex items-center rounded-lg px-3 py-2 text-black"
+                                                        prefetch={false}
+                                                    >
+                                                        <span className={`text-lg ${pathname.includes(route.href)?'font-bold':''}`}>{route.name}</span>
+                                                    </Link>
+                                                </div>
+                                            ))}
+
+                                            {isAuthenticated? 
+                                            <div className="flex justify-center align-middle">
+                                                <Link
+                                                    href="/mycard"
+                                                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-black"
+                                                    prefetch={false}
+                                                >
+                                                    <span className={`text-lg ${pathname.includes('/mycard')?'font-bold':''}`}>My Card</span>
+                                                </Link>
+                                            </div>
+                                            :
+                                            <></>}
+                                        </div>
                                         <DrawerFooter>
-                                        <Button>Submit</Button>
+                                        {isAuthenticated?<><Button>Logout</Button></>:<><Button onClick={handleLogin}>Login</Button></>}
+                                        
                                         <DrawerClose className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"> 
                                             Close
                                         </DrawerClose>
