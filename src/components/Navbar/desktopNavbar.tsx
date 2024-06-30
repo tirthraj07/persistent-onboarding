@@ -65,6 +65,18 @@ export default function DesktopNavbar(){
                                     <span className="text-lg font-medium">{isAuthenticated? "Card" : "Login"}</span>
                                 </Link>
                             </div>
+                            {isAuthenticated? 
+                            <>
+                                <div className="flex justify-center align-middle">
+                                <Link
+                                    href={"/logout"}
+                                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-white"
+                                    prefetch={false}
+                                >
+                                    <span className="text-lg font-medium">Logout</span>
+                                </Link>
+                            </div>
+                            </>:<></>}
                         </div>
                     </div>
                 </nav>

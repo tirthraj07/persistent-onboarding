@@ -12,7 +12,7 @@ import { JsonWebToken } from "./lib/JWT/JWT";
 export async function middleware(request: NextRequest): Promise<NextResponse>{
 
     // API routes that need authentication
-    const protected_api_routes = ['/api/cards/mycard']
+    const protected_api_routes = ['/api/cards/mycard', '/api/logout']
 
     if(protected_api_routes.includes(request.nextUrl.pathname)){
         const token = request.cookies.get('token')?.value;
@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse>{
     }
 
     // Paths that require authentication
-    const protected_paths = ['/mycard', '/edit-card']
+    const protected_paths = ['/mycard', '/edit-card', '/logout']
 
     // Allow requests to pass through if path is not protected
     if (!protected_paths.includes(request.nextUrl.pathname)){

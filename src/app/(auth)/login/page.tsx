@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/Navbar/navbar"
 import * as React from "react"
-import favicon from "../../../public/favicon.png"
+import favicon from "../../../../public/favicon.png"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -32,9 +32,11 @@ export default function LoginPage(){
     const [error, setError] = useState<string>("");
     const [displaySuccess, setDisplaySuccess] = useState<string>('hidden');
     const router = useRouter();
+    const [isProcessing, setProcessing] = useState<boolean>(false);
 
     async function handleFormSubmission(e : React.FormEvent<HTMLFormElement>){
         e.preventDefault();
+        setProcessing(true);
         const target = e.target as typeof e.target & {
             email: {value: string},
             password: {value: string}
@@ -62,6 +64,7 @@ export default function LoginPage(){
                 setDisplayError('block');
                 setError(data.error);
                 setDisplaySuccess('hidden');
+                setProcessing(false);
             }
             else if(data.status === "success"){
                 setDisplayError('hidden');
@@ -77,7 +80,7 @@ export default function LoginPage(){
             setError("Unable to communicate with the server. Please try again later");
             setDisplaySuccess('hidden');
             console.error(error);
-            
+            setProcessing(false);
         }
         
     }
@@ -131,7 +134,7 @@ export default function LoginPage(){
                 </CardContent>
                 <CardFooter className="flex justify-center">
                     {/* <Button variant="outline">Cancel</Button> */}
-                    <Button type="submit">Login</Button>
+                    <Button type="submit" disabled={isProcessing}>Login</Button>
                 </CardFooter>
                 
             </Card>
