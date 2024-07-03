@@ -40,7 +40,6 @@ export async function handleGetRequest(request: NextRequest, token: JWTPayload):
             blood_group:  employeeData.blood_group,
             education_qualification:employeeData.education_qualification 
         }
-        console.log(employee);
         return NextResponse.json(employee);
     } catch (error) {
         console.error(`ERROR: Database query failed for employee_id = ${token.employee_id}`, error);

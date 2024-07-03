@@ -1,8 +1,11 @@
 import Image from "next/image";
 import defaultProfile from "../../../public/default_profile.png"
 import favicon from "../../../public/favicon.png"
+import { ChevronRightIcon } from "@radix-ui/react-icons"
+import { Button } from "@/components/ui/button"
+import DialogBox from "../Dialog/dialogbox";
 
-interface MyCardPageProps {
+export interface MyCardPageProps {
     data: {
         employee_id: string;
         full_name: string;
@@ -60,6 +63,12 @@ export default function Card(
                     <p className="text-gray-700 text-lg md:text-base mb-3 text-start">
                         <strong>Educational Qualification:</strong> {data.education_qualification}
                     </p>
+                    <p className="text-gray-700 text-lg md:text-base mb-3 text-start">
+                        Experience Certificates: <Button variant="outline" size="icon" className="w-6 h-6"> <ChevronRightIcon className="h-3 w-3" /> </Button>
+                    </p>
+                    <div className="mb-3 flex flex-row-reverse">
+                        <DialogBox data={data}/>
+                    </div>
                 </div>
             </div>
         

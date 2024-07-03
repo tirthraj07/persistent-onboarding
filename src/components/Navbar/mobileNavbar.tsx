@@ -105,7 +105,7 @@ export default function MobileNavbar(){
                                             <></>}
                                         </div>
                                         <DrawerFooter>
-                                        {isAuthenticated?<><Button>Logout</Button></>:<><Button onClick={handleLogin}>Login</Button></>}
+                                        {isAuthenticated?<><Button onClick={handleLogout}>Logout</Button></>:<><Button onClick={handleLogin}>Login</Button></>}
                                         
                                         <DrawerClose className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"> 
                                             Close
