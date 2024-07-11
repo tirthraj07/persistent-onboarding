@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { query } from "@/lib/Database/databaseConnect";
 import { JsonWebToken, Payload } from "@/lib/JWT/JWT";
 import { generateHash } from "@/lib/Cryptography/createHash";
-
+import generator from 'generate-password';
+import { compileLoginWelcomeMessage, sendMail } from "@/lib/Nodemailer/sendMail";
+import { group } from "console";
 /**
  * Type definition for Employee object.
  */
 type Employee = {
-    employee_id: number,
+    employee_id: number | BigInt,
     full_name: string,
     email: string,
     password: string
+    user_group: string
 }
 
 /**
@@ -32,12 +34,22 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
         return NextResponse.json({ status:"fail", error:"Invalid email" }, {status:401});
     }
 
+    let user_group:string = data.user_group || 'Default';
+    const {group_name, group_id} = await getUserGroup(user_group);
+
+
+    const temporaryPassword: string = generator.generate({
+        length:10,
+        numbers:true
+    })
+
     // Employee object with hashed password.
     const employee : Employee = {
-        employee_id : data.employee_id, 
+        employee_id : await generateEmployeeID(), 
         full_name : data.full_name,
         email : data.email,
-        password: generateHash(data.password)
+        password: generateHash(temporaryPassword),
+        user_group: group_name
     };
     try{
         // Check if the employee ID or email already exists in the database.
@@ -50,23 +62,32 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
         // Insert the new employee into the database.
         await createEmployeeInDatabase(employee);
 
-        // Generate JWT token for the new employee.
-        const jwtPayload : Payload = {
-            employee_id: employee.employee_id,
-            email: employee.email,
-            full_name: employee.full_name
-        };
+        await createRecordInUserGroupMembershipTable(employee.employee_id,group_id);
 
-        const jwtToken = await  new JsonWebToken().createToken(jwtPayload);
+        await sendMail({
+            to: employee.email,
+            name: employee.full_name,
+            subject: "Persistent Onboarding Email",
+            body: compileLoginWelcomeMessage(employee.full_name, employee.email, temporaryPassword)
+        });
+
+        // Generate JWT token for the new employee.
+        // const jwtPayload : Payload = {
+        //     employee_id: employee.employee_id,
+        //     email: employee.email,
+        //     full_name: employee.full_name
+        // };
+
+        // const jwtToken = await  new JsonWebToken().createToken(jwtPayload);
 
         const response = NextResponse.json({ status:"success" },{ status:201 });
 
-        response.cookies.set('token', jwtToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', 
-            maxAge: 60 * 60 * 24 * 10, 
-            path: '/',
-        });
+        // response.cookies.set('token', jwtToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production', 
+        //     maxAge: 60 * 60 * 24 * 10, 
+        //     path: '/',
+        // });
 
         return response;
     }
@@ -84,6 +105,31 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
 
 // helper functions
 
+async function getUserGroup(user_group: string): Promise<{group_name:string, group_id:number}>{
+    const checkDatabaseForUserGroup = await query("SELECT * FROM user_groups WHERE group_name = $1", [user_group]);
+    if(checkDatabaseForUserGroup.rows.length === 0) return getUserGroup('Default');
+    else {
+        const result = checkDatabaseForUserGroup.rows[0];
+        return {group_id: <number>result.group_id, group_name: <string>result.group_name}
+    }
+}
+
+
+async function createRecordInUserGroupMembershipTable(employee_id:number|BigInt, group_id:number){
+    try {
+        await query(
+            `INSERT INTO user_group_memberships (employee_id, group_id) 
+            VALUES ((SELECT id FROM employees WHERE employee_id = $1), $2)`, 
+            [employee_id, group_id]
+        );
+    }
+    catch (error) {
+        console.error('Error inserting into user_group_memberships:', error);
+        throw new Error('Database insertion failed');
+    }
+}
+
+
 /**
  * Verifies the request body for required fields and correct types.
  * 
@@ -91,20 +137,41 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
  * @returns - An object with error and status properties.
  */
 function verifyRequestBody(body: any) {
-    const { employee_id, full_name, email, password } = body;
+    const { full_name, email } = body;
 
-    if( !employee_id || !full_name || !email || !password ) return {error: "Incomplete credentials",status: 400}
-
-    if (typeof(employee_id) !== 'number') return {error: "Invalid type: employee_id",status: 400}
+    if( !full_name || !email ) return {error: "Incomplete credentials",status: 400}
 
     if (typeof(full_name) !== 'string') return {error: "Invalid type: full_name",status: 400}
 
     if (typeof(email) !== 'string') return {error: "Invalid type: email",status: 400}
 
-    if (typeof(password) !== 'string') return {error: "Invalid type: password",status: 400}
-
     return { error: null }
 }
+
+async function generateEmployeeID(): Promise<BigInt> {
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2,'0');
+    const day = date.getDate().toString().padStart(2, '0');
+    let uniqueID:number = generateRandomNumber(4);
+    let employee_id:BigInt = BigInt(`${year}${month}${day}${uniqueID}`);
+    while(await employeeIDExistsInDB(employee_id)){
+        uniqueID = generateRandomNumber(4);
+        employee_id = BigInt(`${year}${month}${day}${uniqueID}`);
+    }
+    return employee_id;
+}
+
+function generateRandomNumber(length:number) : number {
+    return Math.floor(Math.pow(10,length-1) + Math.random() * ((Math.pow(10, length) - Math.pow(10, length - 1) - 1)));
+}
+
+async function employeeIDExistsInDB(employee_id: BigInt): Promise<boolean> {
+    const searchedEmployeeIDResult = await query('SELECT COUNT(*) FROM employees WHERE employee_id = $1', [employee_id]);
+    const employeeIDCount = parseInt(searchedEmployeeIDResult.rows[0].count, 10);
+    return employeeIDCount > 0;
+}
+
 
 /**
  * Validates if the provided email belongs to the persistent.com domain.
@@ -113,7 +180,8 @@ function verifyRequestBody(body: any) {
  * @returns {boolean} True if the email is valid, otherwise false.
  */
 function isValidPersistentEmail(email: string) : boolean {
-    const persistentEmailRegex = /^[a-zA-Z0-9._%+-]+@persistent\.com$/;
+    // const persistentEmailRegex = /^[a-zA-Z0-9._%+-]+@persistent\.com$/;
+    const persistentEmailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|hotmail\.com|persistent\.com)$/;
     return persistentEmailRegex.test(email);
 }
 

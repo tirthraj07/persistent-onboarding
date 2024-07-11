@@ -108,9 +108,11 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
  * @returns {boolean} True if the email is valid, otherwise false.
  */
 function isValidPersistentEmail(email: string) : boolean {
-    const persistentEmailRegex = /^[a-zA-Z0-9._%+-]+@persistent\.com$/;
+    // const persistentEmailRegex = /^[a-zA-Z0-9._%+-]+@persistent\.com$/;
+    const persistentEmailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|hotmail\.com|persistent\.com)$/;
     return persistentEmailRegex.test(email);
 }
+
 
 /**
  * Searches the database for the hashed password of the provided email.
