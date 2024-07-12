@@ -15,7 +15,8 @@ const secret = new TextEncoder().encode(SECRET_KEY);
 export type Payload = {
     employee_id: number,
     email: string,
-    full_name: string
+    full_name: string,
+    is_completed: boolean
 };
 
 

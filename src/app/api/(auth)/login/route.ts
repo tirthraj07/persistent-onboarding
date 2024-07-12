@@ -72,13 +72,14 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
     }
 
     // Fetch additional information for the JWT payload
-    const { employee_id, full_name } = await searchDatabaseForPayloadInformation(email);
+    const { employee_id, full_name, is_completed } = await searchDatabaseForPayloadInformation(email);
 
     // Create JWT Token
     const jwtPayload : Payload = {
         email,
         employee_id,
-        full_name
+        full_name,
+        is_completed
     }
 
     const jwtToken = await  new JsonWebToken().createToken(jwtPayload); 
@@ -151,10 +152,11 @@ async function searchDatabaseForPassword(email: string) {
  * @returns An object containing the employee ID and full name.
  */
 async function searchDatabaseForPayloadInformation(email:string) {
-    const queryStatement: string = 'SELECT employee_id, full_name FROM employees WHERE email = $1';
+    const queryStatement: string = 'SELECT employee_id, full_name, is_completed FROM employees WHERE email = $1';
     const { rows } = await query(queryStatement, [email]);
     return {
         employee_id : rows[0].employee_id,
-        full_name : rows[0].full_name
+        full_name : <string>rows[0].full_name,
+        is_completed: <boolean>rows[0].is_completed || false
     };
 }
