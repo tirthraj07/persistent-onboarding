@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse>{
     }
 
     // Paths that require authentication
-    const protected_paths = ['/mycard', '/edit-card', '/logout']
+    const protected_paths = ['/mycard', '/edit-card', '/logout', '/update-profile']
 
     // Allow requests to pass through if path is not protected
     if (!protected_paths.includes(request.nextUrl.pathname)){
@@ -62,10 +62,30 @@ export async function middleware(request: NextRequest): Promise<NextResponse>{
     const verifyToken = await jsonwebtoken.validateToken(token);
 
     // Redirect to login page if token validation fails
-    if(!verifyToken.success){
+    if(!verifyToken.success || !verifyToken.decodedToken){
         console.error(verifyToken.error);
         console.error(verifyToken.reason);
         const redirect_url = new URL('/login', request.nextUrl);
+        const response = NextResponse.redirect(redirect_url);
+        return response;
+    }
+
+    if(request.nextUrl.pathname.includes('/logout')) return NextResponse.next();
+
+    if(request.nextUrl.pathname.includes('/update-profile')){
+        // Here check is the token has the is_completed flag set to True
+        if(!verifyToken.decodedToken.is_completed){
+            return NextResponse.next();
+        }
+        else {
+            const redirect_url = new URL('/', request.nextUrl);
+            const response = NextResponse.redirect(redirect_url);
+            return response;
+        }
+    }
+
+    if(!verifyToken.decodedToken.is_completed){
+        const redirect_url = new URL('/update-profile', request.nextUrl);
         const response = NextResponse.redirect(redirect_url);
         return response;
     }
