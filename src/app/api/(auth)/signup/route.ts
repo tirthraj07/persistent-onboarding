@@ -12,8 +12,9 @@ type Employee = {
     employee_id: number | BigInt,
     full_name: string,
     email: string,
-    password: string
-    user_group: string
+    password: string,
+    user_group: string,
+    is_completed: boolean
 }
 
 /**
@@ -49,7 +50,8 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
         full_name : data.full_name,
         email : data.email,
         password: generateHash(temporaryPassword),
-        user_group: group_name
+        user_group: group_name,
+        is_completed: false
     };
     try{
         // Check if the employee ID or email already exists in the database.
@@ -220,8 +222,8 @@ async function checkUniqueness(employee: Employee): Promise<boolean>{
 async function createEmployeeInDatabase(employee: Employee): Promise<void>{
     try {
         await query(
-            "INSERT INTO employees (employee_id, full_name, email, password) VALUES ($1, $2, $3, $4)", 
-            [employee.employee_id, employee.full_name, employee.email, employee.password]
+            "INSERT INTO employees (employee_id, full_name, email, password, is_completed) VALUES ($1, $2, $3, $4, $5)", 
+            [employee.employee_id, employee.full_name, employee.email, employee.password, employee.is_completed]
         );
     } catch (error) {
         console.error("Error creating employee:", error);
