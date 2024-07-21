@@ -4,7 +4,7 @@ import { JsonWebToken, Payload } from "@/lib/JWT/JWT";
 import { generateHash } from "@/lib/Cryptography/createHash";
 import generator from 'generate-password';
 import { compileLoginWelcomeMessage, sendMail } from "@/lib/Nodemailer/sendMail";
-import { group } from "console";
+
 /**
  * Type definition for Employee object.
  */
