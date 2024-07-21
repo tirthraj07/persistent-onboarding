@@ -31,6 +31,8 @@ export default function Card(
                 <div className="flex justify-center mt-8">
                     <Image 
                         src={data.profilePicture || defaultProfile}
+                        width={96}
+                        height={96}
                         alt="Profile Picture"
                         className="w-24 h-24 rounded-full"
                     />

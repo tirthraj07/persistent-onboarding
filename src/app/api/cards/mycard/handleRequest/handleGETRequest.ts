@@ -11,7 +11,8 @@ type Employee = {
     date_of_birth: string | null,
     address: string | null,
     blood_group: string | null,
-    education_qualification: string | null
+    education_qualification: string | null,
+    profilePicture: string | null,
 }
 
 export async function handleGetRequest(request: NextRequest, token: JWTPayload): Promise<NextResponse> {
@@ -29,6 +30,13 @@ export async function handleGetRequest(request: NextRequest, token: JWTPayload):
             return NextResponse.json({ error: "User cannot be found in database" }, { status: 500 });
         }
 
+        const profilePictureURLFromProfilePicturesDB = await query('SELECT * FROM profile_pictures WHERE employee_id = $1 LIMIT 1', [token.employee_id]);
+        
+        let profilePictureURL = null
+        if(profilePictureURLFromProfilePicturesDB.rowCount === 1){
+            profilePictureURL = profilePictureURLFromProfilePicturesDB.rows[0].location;
+        }
+
         const employeeData = informationFromEmployeesDB.rows[0];
         const employee: Employee = {
             employee_id : employeeData.employee_id,
@@ -38,7 +46,8 @@ export async function handleGetRequest(request: NextRequest, token: JWTPayload):
             date_of_birth:  employeeData.date_of_birth,
             address:  employeeData.address,
             blood_group:  employeeData.blood_group,
-            education_qualification:employeeData.education_qualification 
+            education_qualification:employeeData.education_qualification,
+            profilePicture: profilePictureURL
         }
         return NextResponse.json(employee);
     } catch (error) {
