@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/Database/databaseConnect";
-import { JsonWebToken, Payload } from "@/lib/JWT/JWT";
 import { generateHash } from "@/lib/Cryptography/createHash";
 import generator from 'generate-password';
 import { compileLoginWelcomeMessage, sendMail } from "@/lib/Nodemailer/sendMail";
