@@ -103,6 +103,18 @@ export default function MobileNavbar(){
                                             </div>
                                             :
                                             <></>}
+                                            {isAuthenticated? 
+                                            <div className="flex justify-center align-middle">
+                                                <Link
+                                                    href="/dashboard"
+                                                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-black"
+                                                    prefetch={false}
+                                                >
+                                                    <span className={`text-lg ${pathname.includes('/dashboard')?'font-bold':''}`}>Dashboard</span>
+                                                </Link>
+                                            </div>
+                                            :
+                                            <></>}
                                         </div>
                                         <DrawerFooter>
                                         {isAuthenticated?<><Button onClick={handleLogout}>Logout</Button></>:<><Button onClick={handleLogin}>Login</Button></>}

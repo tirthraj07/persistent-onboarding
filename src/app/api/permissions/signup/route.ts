@@ -25,19 +25,23 @@ type Employee = {
 export async function POST(request: NextRequest): Promise<NextResponse>{    
     const data = await request.json()
 
+    console.log(data);
     // Verify the request body for necessary fields and correct types.
     const verifiedRequestBody = verifyRequestBody(data);
     if(verifiedRequestBody.error) return NextResponse.json({error: verifiedRequestBody.error},{status:verifiedRequestBody.status})
 
+    console.log("reached here")
     // Validate the email format.
     if(!isValidPersistentEmail(data.email)){
         return NextResponse.json({ status:"fail", error:"Invalid email" }, {status:401});
     }
 
+    console.log("reached here")
+
     let user_group:string = data.user_group || 'Default';
     const {group_name, group_id} = await getUserGroup(user_group);
 
-
+    console.log("reached here")
     const temporaryPassword: string = generator.generate({
         length:10,
         numbers:true
@@ -64,6 +68,8 @@ export async function POST(request: NextRequest): Promise<NextResponse>{
         await createEmployeeInDatabase(employee);
 
         await createRecordInUserGroupMembershipTable(employee.employee_id,group_id);
+
+        console.log(employee);
 
         await sendMail({
             to: employee.email,

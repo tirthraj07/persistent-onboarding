@@ -58,11 +58,11 @@ export default function DesktopNavbar(){
                             </div>
                             <div className="flex justify-center align-middle">
                                 <Link
-                                    href={isAuthenticated? "/mycard" : "/login"}
+                                    href={isAuthenticated? "/dashboard" : "/login"}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-white"
                                     prefetch={false}
                                 >
-                                    <span className="text-lg font-medium">{isAuthenticated? "Card" : "Login"}</span>
+                                    <span className="text-lg font-medium">{isAuthenticated? "Dashboard" : "Login"}</span>
                                 </Link>
                             </div>
                             {isAuthenticated? 

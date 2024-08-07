@@ -16,12 +16,12 @@ export async function uploadToCloudinary( localFilePath: string|undefined, filen
         
         fs.unlinkSync(localFilePath)
 
-        return { success: true, url: responseAfterUploadingToCloudinary.url };
+        return { success: true, url: responseAfterUploadingToCloudinary.url, public_id: responseAfterUploadingToCloudinary.public_id };
 
     }
     catch(error){
-        console.error(`Error occurred while uploading to cloudinary. Passed arguments \n ${localFilePath} \n ${filename} \n ${foldername}`);
         console.error(error);
+        console.error(`Error occurred while uploading to cloudinary. Passed arguments \n ${localFilePath} \n ${filename} \n ${foldername}`);
         if(localFilePath) fs.unlinkSync(localFilePath)
         return { success: false, error: "Unable to upload to cloud" };        
     }

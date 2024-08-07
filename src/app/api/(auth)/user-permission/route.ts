@@ -8,6 +8,8 @@ type Permission = {
     description: string
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest){
     const decodedTokenHeader = request.headers.get('x-decoded-token');
     if (!decodedTokenHeader) {
@@ -24,7 +26,7 @@ export async function GET(request: NextRequest){
     
     try{
         const employee_id = Number(decodedToken.employee_id);
-        const fetchUserGroupFromDB = await query('SELECT user_group_memberships.group_id, user_groups.group_name, user_groups.description FROM user_group_memberships JOIN user_groups ON user_group_memberships.group_id = user_groups.group_id WHERE employee_id = $1', [employee_id]);
+        const fetchUserGroupFromDB = await query('SELECT employees.id, employees.employee_id, user_group_memberships.group_id, user_groups.group_name, user_groups.description FROM user_group_memberships JOIN user_groups ON user_group_memberships.group_id = user_groups.group_id JOIN employees ON employees.id = user_group_memberships.employee_id WHERE employees.employee_id = $1', [employee_id]);
         let group_id:Number;
         let group_name: string;
         let group_description: string;
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest){
             group_id = fetchUserGroupFromDB.rows[0].group_id;
             group_description = fetchUserGroupFromDB.rows[0].description;
         }
-        const fetchPermissionsFromDB = await query("SELECT user_group_permissions.permission_id, permissions.permission_name, permissions.description FROM user_group_permissions LEFT JOIN permissions ON user_group_permissions.permission_id = permissions.permission_id WHERE group_id = $1", [group_id]);
+        const fetchPermissionsFromDB = await query("SELECT user_group_permissions.permission_id, permissions.permission_name, permissions.description, permissions.url_name, permissions.url_address, permissions.api FROM user_group_permissions LEFT JOIN permissions ON user_group_permissions.permission_id = permissions.permission_id WHERE group_id = $1", [group_id]);
 
         let permissions: Array<Permission> = [];
         if(fetchPermissionsFromDB.rowCount === 0){
